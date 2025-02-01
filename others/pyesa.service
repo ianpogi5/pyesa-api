@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 User=root
-WorkingDirectory=/opt/pyesa
-ExecStart=/opt/pyesa/.venv/bin/python3 main.py
+WorkingDirectory=/opt/pyesa-api
+ExecStart=/opt/pyesa-api/.venv/bin/python3 main.py
 Restart=always
 SyslogIdentifier=pyesa-api
 

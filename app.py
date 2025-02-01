@@ -30,7 +30,7 @@ class FileContent(BaseModel):
 async def list_files():
     try:
         files = [f for f in os.listdir(FILES_DIR) if f.endswith('.json')]
-        return {"files": files}
+        return {"files": sorted(files, reverse=True)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

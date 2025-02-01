@@ -1,0 +1,13 @@
+[Unit]
+Description=pyesa
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/opt/pyesa
+ExecStart=/opt/pyesa/.venv/bin/python3 main.py
+Restart=always
+SyslogIdentifier=pyesa-api
+
+[Install]
+WantedBy=multi-user.target

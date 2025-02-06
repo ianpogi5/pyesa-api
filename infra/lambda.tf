@@ -13,7 +13,7 @@ resource "aws_lambda_function" "pyesa_api_lambda" {
   function_name    = "pyesa_api_lambda"
   role            = aws_iam_role.lambda_role.arn
   handler        = "lambda.handler"
-  runtime        = "python3.13"
+  runtime        = "python3.12"
 
   s3_bucket     = aws_s3_bucket.lambda_bucket.id
   s3_key        = aws_s3_object.lambda_zip.key

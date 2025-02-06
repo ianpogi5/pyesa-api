@@ -25,7 +25,7 @@ jobs:
           cp requirements.txt lambda_package/
           cp app.py lambda_package/
           cp lambda.py lambda_package/
-          docker run --rm -v $(pwd)/lambda_package:/lambda_package -w /lambda_package amazonlinux:2023 /bin/bash -c "yum install -y python3 pip && pip3 install --target=/lambda_package -r /lambda_package/requirements.txt && chmod -fR 777 *"
+          docker run --rm -v $(pwd)/lambda_package:/lambda_package -w /lambda_package amazonlinux:2023 /bin/bash -c "yum install -y python3.12 python3.12-pip && pip3.12 install --target=/lambda_package -r /lambda_package/requirements.txt && chmod -fR 777 *"
           cd lambda_package
           zip -r ../pyesa_api_lambda.zip .
           ls -l

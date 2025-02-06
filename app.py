@@ -1,9 +1,10 @@
+import os
+import json
+from typing import List
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List
-import os
 from pydantic import BaseModel
-import json
+import boto3
 
 app = FastAPI()
 
@@ -16,35 +17,54 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Directory to store and read text files
-FILES_DIR = os.path.join(os.path.dirname(__file__), 'files')
-os.makedirs(FILES_DIR, exist_ok=True)
+# AWS S3 Configuration
+AWS_REGION = os.getenv("AWS_REGION")
+S3_BUCKET = os.getenv("S3_BUCKET")
+MASS_FILES = "mass/"
+
+s3_client = boto3.client("s3", region_name=AWS_REGION)
+
 
 class FileList(BaseModel):
     files: List[str]
 
+
 class FileContent(BaseModel):
     songs: list
 
+
 @app.get("/api/files", response_model=FileList)
 async def list_files():
+    """List JSON files in S3."""
     try:
-        files = [f for f in os.listdir(FILES_DIR) if f.endswith('.json')]
+        response = s3_client.list_objects_v2(
+            Bucket=S3_BUCKET, Prefix=MASS_FILES
+        )
+        files = [
+            obj["Key"].replace(MASS_FILES, "")
+            for obj in response.get("Contents", [])
+            if obj["Key"].endswith(".json")
+        ]
         return {"files": sorted(files, reverse=True)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.get("/api/files/{filename}", response_model=FileContent)
 async def read_file(filename: str):
-    if not filename.endswith('.json'):
-        raise HTTPException(status_code=400, detail="Only .json files are supported")
-
-    file_path = os.path.join(FILES_DIR, filename)
-    if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail="File not found")
+    """Read a JSON file from S3."""
+    if not filename.endswith(".json"):
+        raise HTTPException(
+            status_code=400, detail="Only .json files are supported"
+        )
 
     try:
-        with open(file_path, 'r') as f:
-            return json.load(f)
+        response = s3_client.get_object(
+            Bucket=S3_BUCKET, Key=f"{MASS_FILES}{filename}"
+        )
+        file_content = response["Body"].read().decode("utf-8")
+        return json.loads(file_content)
+    except s3_client.exceptions.NoSuchKey:
+        raise HTTPException(status_code=404, detail="File not found")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

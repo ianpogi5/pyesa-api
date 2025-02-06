@@ -2,3 +2,5 @@ files
 logs/*
 *.pyc
 .env
+lambda_package
+*.zip

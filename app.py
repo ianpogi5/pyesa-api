@@ -18,11 +18,11 @@ app.add_middleware(
 )
 
 # AWS S3 Configuration
-AWS_REGION = os.getenv("AWS_REGION")
+S3_AWS_REGION = os.getenv("S3_AWS_REGION")
 S3_BUCKET = os.getenv("S3_BUCKET")
-MASS_FILES = "mass/"
+MASS_FILES = os.getenv("MASS_FILES", default="mass/")
 
-s3_client = boto3.client("s3", region_name=AWS_REGION)
+s3_client = boto3.client("s3", region_name=S3_AWS_REGION)
 
 
 class FileList(BaseModel):
@@ -31,6 +31,16 @@ class FileList(BaseModel):
 
 class FileContent(BaseModel):
     songs: list
+
+
+@app.get("/")
+async def hello():
+    return "Welcome to PG Choir Pyesa. A choir companion during Sunday Mass."
+
+
+@app.get("/prod")
+async def prod():
+    return "Hello prod"
 
 
 @app.get("/api/files", response_model=FileList)

@@ -21,12 +21,15 @@ jobs:
 
       - name: Build zip
         run: |
+          rm -fR lambda_package
+          rm -f pyesa_api_lambda.zip
           mkdir lambda_package
           docker run --rm -v $(pwd)/lambda_package:/lambda_package -w /lambda_package amazonlinux:2023 /bin/bash -c "yum install -y python3 pip && pip3 install --target=/lambda_package fastapi boto3 mangum pydantic"
           cp app.py lambda_package/
           cp lambda.py lambda_package/
           cd lambda_package
           zip -r ../pyesa_api_lambda.zip .
+          ls -l ../pyesa_api_lambda.zip
 
       - name: Setup terraform
         uses: hashicorp/setup-terraform@v3
@@ -50,4 +53,9 @@ jobs:
           TF_VAR_region: ${{ vars.S3_AWS_REGION }}
           TF_VAR_S3_BUCKET: ${{ vars.MASS_FILES }}
           TF_VAR_MASS_FILES: ${{ vars.MASS_FILES }}
+
+      - name: Clean up
+        run: |
+          rm -fR lambda_package
+          rm -f pyesa_api_lambda.zip
 

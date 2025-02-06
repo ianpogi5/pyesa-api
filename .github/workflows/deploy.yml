@@ -21,14 +21,14 @@ jobs:
 
       - name: Build zip
         run: |
-          rm -fR lambda_package
-          rm -f pyesa_api_lambda.zip
           mkdir lambda_package
           docker run --rm -v $(pwd)/lambda_package:/lambda_package -w /lambda_package amazonlinux:2023 /bin/bash -c "yum install -y python3 pip && pip3 install --target=/lambda_package fastapi boto3 mangum pydantic"
           cp app.py lambda_package/
           cp lambda.py lambda_package/
           cd lambda_package
+          chmod +r -fR *
           zip -r ../pyesa_api_lambda.zip .
+          ls -l
           ls -l ../pyesa_api_lambda.zip
 
       - name: Setup terraform

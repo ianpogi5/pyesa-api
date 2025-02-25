@@ -56,7 +56,7 @@ async def list_files():
                 if obj["Key"].endswith(".json")
             ]
         else:  # FILES_FROM == "FS"
-            files_path = Path(LOCAL_FILES_PATH)
+            files_path = Path(LOCAL_FILES_PATH) / Path(MASS_FILES)
             files = [
                 f.name for f in files_path.glob("*.json")
                 if f.is_file()
@@ -82,7 +82,7 @@ async def read_file(filename: str):
             )
             file_content = response["Body"].read().decode("utf-8")
         else:  # FILES_FROM == "FS"
-            file_path = Path(LOCAL_FILES_PATH) / filename
+            file_path = Path(LOCAL_FILES_PATH) / Path(MASS_FILES) / filename
             if not file_path.exists():
                 raise HTTPException(status_code=404, detail="File not found")
             with open(file_path, 'r', encoding='utf-8') as f:
